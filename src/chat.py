@@ -9,7 +9,7 @@ load_dotenv()
 def print_banner():
     """Exibe o banner de boas-vindas"""
     print("🚀" + "=" * 60 + "🚀")
-    print("           SISTEMA DE BUSCA SEMÂNTICA COM IA")
+    print("           SISTEMA DE BUSCA SEMÂNTICA COM IA ")
     print("           Baseado no documento: " + os.getenv("PDF_PATH", "document.pdf"))
     print("🚀" + "=" * 60 + "🚀")
     print()
