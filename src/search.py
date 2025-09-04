@@ -4,10 +4,8 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGener
 from langchain_community.vectorstores import PGVector
 from langchain_core.prompts import PromptTemplate
 
-# Carrega variáveis de ambiente
 load_dotenv()
 
-# Template do prompt conforme especificado no desafio
 PROMPT_TEMPLATE = """
 CONTEXTO:
 {contexto}
@@ -36,12 +34,9 @@ RESPONDA A "PERGUNTA DO USUÁRIO"
 """
 
 def get_database_connection():
-    """Cria conexão com o banco PostgreSQL para busca"""
     try:
-        # Parâmetros de conexão
         connection_string = f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@{os.getenv('POSTGRES_HOST')}:{os.getenv('POSTGRES_PORT')}/{os.getenv('POSTGRES_DB')}"
         
-        # Cria a conexão com pgvector para busca
         db = PGVector(
             connection_string=connection_string,
             embedding_function=GoogleGenerativeAIEmbeddings(
@@ -58,16 +53,13 @@ def get_database_connection():
         return None
 
 def search_similar_documents(query, db, k=10):
-    """Busca documentos similares no banco de dados"""
     try:
         print(f"🔍 Buscando documentos similares para: '{query[:50]}...'")
         
-        # Busca os k documentos mais similares
         similar_docs = db.similarity_search_with_score(query, k=k)
         
         print(f"✅ Encontrados {len(similar_docs)} documentos relevantes")
         
-        # Extrai apenas o conteúdo dos documentos (sem scores)
         documents = [doc[0] for doc in similar_docs]
         
         return documents
@@ -77,12 +69,10 @@ def search_similar_documents(query, db, k=10):
         return []
 
 def create_context_from_documents(documents):
-    """Cria o contexto concatenando os documentos encontrados"""
     try:
         if not documents:
             return "Nenhum documento relevante encontrado."
         
-        # Concatena o conteúdo dos documentos
         context_parts = []
         for i, doc in enumerate(documents, 1):
             context_parts.append(f"DOCUMENTO {i}:\n{doc.page_content}\n")
@@ -97,27 +87,22 @@ def create_context_from_documents(documents):
         return "Erro ao processar documentos."
 
 def generate_response(query, context):
-    """Gera resposta usando Google Gemini"""
     try:
         print("🤖 Gerando resposta com Google Gemini...")
         
-        # Cria o modelo de chat
         llm = ChatGoogleGenerativeAI(
             model=os.getenv("LLM_MODEL", "gemini-2.0-flash-exp"),
             google_api_key=os.getenv("GOOGLE_API_KEY"),
-            temperature=0.1  # Baixa temperatura para respostas mais precisas
+            temperature=0.1
         )
         
-        # Cria o prompt
         prompt = PromptTemplate(
             template=PROMPT_TEMPLATE,
             input_variables=["contexto", "pergunta"]
         )
         
-        # Monta o prompt final
         final_prompt = prompt.format(contexto=context, pergunta=query)
         
-        # Gera a resposta
         response = llm.invoke(final_prompt)
         
         print("✅ Resposta gerada com sucesso!")
@@ -128,25 +113,20 @@ def generate_response(query, context):
         return f"Erro ao processar resposta: {e}"
 
 def search_prompt(question=None):
-    """Função principal de busca e resposta"""
     if not question:
         return None
     
     try:
-        # 1. Conecta ao banco
         db = get_database_connection()
         if not db:
             return "Erro: Não foi possível conectar ao banco de dados."
         
-        # 2. Busca documentos similares
         similar_docs = search_similar_documents(question, db)
         if not similar_docs:
             return "Não tenho informações necessárias para responder sua pergunta."
         
-        # 3. Cria o contexto
         context = create_context_from_documents(similar_docs)
         
-        # 4. Gera a resposta
         response = generate_response(question, context)
         
         return response
@@ -156,11 +136,9 @@ def search_prompt(question=None):
         return f"Erro interno: {e}"
 
 def test_search_functionality():
-    """Testa a funcionalidade de busca"""
     print("🧪 TESTANDO FUNCIONALIDADE DE BUSCA")
     print("=" * 50)
     
-    # Testa com uma pergunta simples
     test_question = "Qual é o tema principal deste documento?"
     
     print(f"Pergunta de teste: {test_question}")

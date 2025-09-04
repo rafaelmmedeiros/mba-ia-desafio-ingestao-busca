@@ -5,16 +5,12 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import PGVector
 
-# Carrega variáveis de ambiente
 load_dotenv()
 
 def get_database_connection():
-    """Cria conexão com o banco PostgreSQL"""
     try:
-        # Parâmetros de conexão
         connection_string = f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@{os.getenv('POSTGRES_HOST')}:{os.getenv('POSTGRES_PORT')}/{os.getenv('POSTGRES_DB')}"
         
-        # Cria a conexão com pgvector
         db = PGVector(
             connection_string=connection_string,
             embedding_function=GoogleGenerativeAIEmbeddings(
@@ -32,16 +28,13 @@ def get_database_connection():
         return None
 
 def load_pdf(pdf_path):
-    """Carrega o PDF e extrai o texto"""
     try:
         print(f"📖 Carregando PDF: {pdf_path}")
         
-        # Verifica se o arquivo existe
         if not os.path.exists(pdf_path):
             print(f"❌ Arquivo não encontrado: {pdf_path}")
             return None
         
-        # Carrega o PDF
         loader = PyPDFLoader(pdf_path)
         documents = loader.load()
         
@@ -53,19 +46,16 @@ def load_pdf(pdf_path):
         return None
 
 def split_documents(documents):
-    """Divide os documentos em chunks menores"""
     try:
         print("✂️  Dividindo documentos em chunks...")
-        
-        # Configura o divisor de texto
+
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000,      # Tamanho de cada chunk
-            chunk_overlap=150,     # Overlap entre chunks
-            length_function=len,   # Função para medir tamanho
-            separators=["\n\n", "\n", " ", ""]  # Separadores para divisão
+            chunk_size=1000,
+            chunk_overlap=150,
+            length_function=len,
+            separators=["\n\n", "\n", " ", ""]
         )
         
-        # Divide os documentos
         chunks = text_splitter.split_documents(documents)
         
         print(f"✅ Documentos divididos em {len(chunks)} chunks!")
@@ -78,15 +68,12 @@ def split_documents(documents):
         return None
 
 def save_to_database(db, chunks):
-    """Salva os chunks no banco de dados"""
     try:
         print("💾 Salvando chunks no banco de dados...")
         
-        # Salva cada chunk no banco
         for i, chunk in enumerate(chunks):
             print(f"   Salvando chunk {i+1}/{len(chunks)}...")
             
-            # Adiciona o chunk ao banco
             db.add_documents([chunk])
         
         print("✅ Todos os chunks foram salvos no banco!")
@@ -97,27 +84,22 @@ def save_to_database(db, chunks):
         return False
 
 def ingest_pdf():
-    """Função principal de ingestão"""
     print("🚀 INICIANDO PROCESSO DE INGESTÃO")
     print("=" * 50)
     
-    # 1. Conecta ao banco
     db = get_database_connection()
     if not db:
         return False
     
-    # 2. Carrega o PDF
     pdf_path = os.getenv("PDF_PATH", "document.pdf")
     documents = load_pdf(pdf_path)
     if not documents:
         return False
     
-    # 3. Divide em chunks
     chunks = split_documents(documents)
     if not chunks:
         return False
     
-    # 4. Salva no banco
     success = save_to_database(db, chunks)
     
     if success:
