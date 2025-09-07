@@ -13,10 +13,10 @@ CONTEXTO:
 
 REGRAS:
 - Responda SOMENTE com base no CONTEXTO fornecido.
-- Para perguntas que requerem análise, comparação ou ranking (como "os 5 maiores", "os menores", "compare", etc.), analise TODOS os dados relevantes no contexto.
+- Para todas as perguntas, analise TODOS os dados relevantes no contexto. 
+- Siga um método de analise ao qual eu tenho que olhar todos para saber qual é a resposta. Por exemplo: Eu somente posso saber quem é o maior, se olhar todos os dados relevantes no contexto.
 - Sempre que tiver um ranking, faça uma pós analise, exemplo: para os 5 maiores, procure o maior, depois procure o segundo maior, e assim por diante (o segundo maior é o maior excluindo o primeiro). Siga tal regra para outros rankings.
 - Se a informação não estiver no CONTEXTO, responda: "Não tenho informações necessárias para responder sua pergunta."
-- Para perguntas complexas, organize e compare as informações disponíveis no contexto.
 - Nunca invente dados ou use conhecimento externo.
 
 EXEMPLOS DE ANÁLISE COMPLEXA:
