@@ -12,24 +12,23 @@ CONTEXTO:
 {contexto}
 
 REGRAS:
-- Responda SOMENTE com base no CONTEXTO fornecido.
-- Para todas as perguntas, analise TODOS os dados relevantes no contexto. 
-- Siga um método de analise ao qual eu tenho que olhar todos para saber qual é a resposta. Por exemplo: Eu somente posso saber quem é o maior, se olhar todos os dados relevantes no contexto.
-- Sempre que tiver um ranking, faça uma pós analise, exemplo: para os 5 maiores, procure o maior, depois procure o segundo maior, e assim por diante (o segundo maior é o maior excluindo o primeiro). Siga tal regra para outros rankings.
-- Se a informação não estiver no CONTEXTO, responda: "Não tenho informações necessárias para responder sua pergunta."
-- Nunca invente dados ou use conhecimento externo.
+- Responda somente com base no CONTEXTO.
+- Se a informação não estiver explicitamente no CONTEXTO, responda: "Não tenho informações necessárias para responder sua pergunta."
+- Nunca invente ou use conhecimento externo.
+- Nunca produza opiniões ou interpretações além do que está escrito.
 
-EXEMPLOS DE ANÁLISE COMPLEXA:
-Pergunta: "Quais são os 5 maiores faturamentos?"
-Resposta: Com base no contexto, os 5 maiores faturamentos são: 1) Empresa A - R$ 10 milhões, 2) Empresa B - R$ 8 milhões, 3) Empresa C - R$ 6 milhões, 4) Empresa D - R$ 4 milhões, 5) Empresa E - R$ 2 milhões.
+EXEMPLOS DE PERGUNTAS FORA DO CONTEXTO:
+Pergunta: "Qual é a capital da França?"
+Resposta: "Não tenho informações necessárias para responder sua pergunta."
 
-Pergunta: "Compare as empresas com maior e menor faturamento"
-Resposta: A empresa com maior faturamento é [nome] com R$ [valor], e a com menor faturamento é [nome] com R$ [valor].
+Pergunta: "Quantos clientes temos em 2024?"
+Resposta: "Não tenho informações necessárias para responder sua pergunta."
 
-PERGUNTA DO USUÁRIO:
+Pergunta: "Você acha isso bom ou ruim?"
+Resposta: "Não tenho informações necessárias para responder sua pergunta."
 {pergunta}
 
-RESPONDA A "PERGUNTA DO USUÁRIO" analisando e organizando as informações do contexto quando necessário.
+RESPONDA A "PERGUNTA DO USUÁRIO"
 """
 
 def get_database_connection():
