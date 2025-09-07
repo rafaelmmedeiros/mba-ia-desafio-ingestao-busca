@@ -7,8 +7,25 @@
 ### 1. Configurar APIs
 Crie arquivo `.env` com suas chaves:
 ```bash
-OPENAI_API_KEY=sua_chave_aqui
-GOOGLE_API_KEY=sua_chave_aqui
+# Configurações do banco de dados
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=rag
+
+# Configurações da OpenAI
+OPENAI_API_KEY=sua_chave_api_aqui
+
+# Configurações da Google
+GOOGLE_API_KEY=sua_chave_api_aqui
+
+# Configurações do PDF
+PDF_PATH=document.pdf
+
+# Configurações dos modelos (Conforme google ou OpenAI)
+EMBEDDING_MODEL=models/embedding-001
+LLM_MODEL=gemini-2.0-flash-exp
 ```
 
 ### 2. Subir Banco de Dados
