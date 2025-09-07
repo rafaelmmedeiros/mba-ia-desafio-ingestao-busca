@@ -51,15 +51,16 @@ def get_database_connection():
         print(f"❌ Erro ao conectar ao banco: {e}")
         return None
 
-def search_similar_documents(query, db, k=20):
+def search_similar_documents(query, db, k=67):
     try:
-        print(f"🔍 Buscando documentos similares para: '{query[:50]}...'")
+        print(f"🔍 Buscando TODOS os documentos para: '{query[:50]}...'")
         
-        similar_docs = db.similarity_search_with_score(query, k=k)
+        # BUSCAR TODOS os documentos usando busca por similaridade com query genérica
+        # Usar uma query que retorna todos os documentos
+        all_docs = db.similarity_search_with_score("", k=k)
         
-        print(f"✅ Encontrados {len(similar_docs)} documentos relevantes")
-        
-        documents = [doc[0] for doc in similar_docs]
+        print(f"✅ Encontrados {len(all_docs)} documentos (TODOS os chunks)")
+        documents = [doc[0] for doc in all_docs]
         
         return documents
         
@@ -121,16 +122,10 @@ def search_prompt(question=None):
         if not db:
             return "Erro: Não foi possível conectar ao banco de dados."
         
-        # Para perguntas complexas, buscar mais documentos
-        is_complex_question = any(keyword in question.lower() for keyword in [
-            'maiores', 'menores', 'top', 'ranking', 'compare', 'todos', 'listar', 
-            'quais são', 'quantos', 'múltiplos', 'vários', 'diferentes'
-        ])
+        # SEMPRE buscar TODOS os documentos para máxima precisão
+        print("🔍 Buscando TODOS os documentos para máxima precisão...")
         
-        k_docs = 30 if is_complex_question else 20
-        print(f"🔍 Buscando {k_docs} documentos para pergunta {'complexa' if is_complex_question else 'simples'}")
-        
-        similar_docs = search_similar_documents(question, db, k=k_docs)
+        similar_docs = search_similar_documents(question, db, k=67)
         if not similar_docs:
             return "Não tenho informações necessárias para responder sua pergunta."
         
