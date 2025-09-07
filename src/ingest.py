@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import PGVector
 
 load_dotenv()
@@ -13,9 +13,9 @@ def get_database_connection():
         
         db = PGVector(
             connection_string=connection_string,
-            embedding_function=GoogleGenerativeAIEmbeddings(
-                model=os.getenv("EMBEDDING_MODEL", "models/embedding-001"),
-                google_api_key=os.getenv("GOOGLE_API_KEY")
+            embedding_function=OpenAIEmbeddings(
+                model=os.getenv("EMBEDDING_MODEL", "text-embedding-3-small"),
+                openai_api_key=os.getenv("OPENAI_API_KEY")
             ),
             collection_name="pdf_documents"
         )

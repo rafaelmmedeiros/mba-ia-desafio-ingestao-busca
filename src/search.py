@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_community.vectorstores import PGVector
 from langchain_core.prompts import PromptTemplate
 
@@ -39,9 +39,9 @@ def get_database_connection():
         
         db = PGVector(
             connection_string=connection_string,
-            embedding_function=GoogleGenerativeAIEmbeddings(
-                model=os.getenv("EMBEDDING_MODEL", "models/embedding-001"),
-                google_api_key=os.getenv("GOOGLE_API_KEY")
+            embedding_function=OpenAIEmbeddings(
+                model=os.getenv("EMBEDDING_MODEL", "text-embedding-3-small"),
+                openai_api_key=os.getenv("OPENAI_API_KEY")
             ),
             collection_name="pdf_documents"
         )
@@ -88,11 +88,11 @@ def create_context_from_documents(documents):
 
 def generate_response(query, context):
     try:
-        print("🤖 Gerando resposta com Google Gemini...")
+        print("🤖 Gerando resposta com OpenAI...")
         
-        llm = ChatGoogleGenerativeAI(
-            model=os.getenv("LLM_MODEL", "gemini-2.0-flash-exp"),
-            google_api_key=os.getenv("GOOGLE_API_KEY"),
+        llm = ChatOpenAI(
+            model=os.getenv("LLM_MODEL", "gpt-5-nano"),
+            openai_api_key=os.getenv("OPENAI_API_KEY"),
             temperature=0.1
         )
         

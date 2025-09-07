@@ -28,8 +28,8 @@ def print_help():
 def print_status():
     print("\n📊 STATUS DO SISTEMA:")
     print(f"   📄 Documento: {os.getenv('PDF_PATH', 'document.pdf')}")
-    print(f"   🤖 Modelo LLM: {os.getenv('LLM_MODEL', 'gemini-2.0-flash-exp')}")
-    print(f"   🔍 Modelo Embedding: {os.getenv('EMBEDDING_MODEL', 'models/embedding-001')}")
+    print(f"   🤖 Modelo LLM: {os.getenv('LLM_MODEL', 'gpt-5-nano')}")
+    print(f"   🔍 Modelo Embedding: {os.getenv('EMBEDDING_MODEL', 'text-embedding-3-small')}")
     print(f"   🗄️  Banco: {os.getenv('POSTGRES_HOST', 'localhost')}:{os.getenv('POSTGRES_PORT', '5432')}")
     print()
 
@@ -37,7 +37,7 @@ def print_about():
     print("\nℹ️  SOBRE O PROJETO:")
     print("   Este é um sistema de busca semântica que utiliza:")
     print("   - LangChain para processamento de documentos")
-    print("   - Google Gemini para embeddings e respostas")
+    print("   - OpenAI para embeddings e respostas")
     print("   - PostgreSQL com pgVector para busca vetorial")
     print("   - Processamento de PDF com divisão em chunks")
     print()
@@ -117,9 +117,9 @@ def chat_loop():
 
 def main():
     try:
-        if not os.getenv("GOOGLE_API_KEY"):
-            print("❌ ERRO: Chave da Google API não configurada!")
-            print("💡 Configure a variável GOOGLE_API_KEY no arquivo .env")
+        if not os.getenv("OPENAI_API_KEY"):
+            print("❌ ERRO: Chave da OpenAI API não configurada!")
+            print("💡 Configure a variável OPENAI_API_KEY no arquivo .env")
             return False
         
         chat_loop()
