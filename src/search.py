@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_community.vectorstores import PGVector
+
 from langchain_core.prompts import PromptTemplate
 
 load_dotenv()
@@ -11,26 +12,24 @@ CONTEXTO:
 {contexto}
 
 REGRAS:
-- Responda somente com base no CONTEXTO.
-- Se a informação não estiver explicitamente no CONTEXTO, responda:
-  "Não tenho informações necessárias para responder sua pergunta."
-- Nunca invente ou use conhecimento externo.
-- Nunca produza opiniões ou interpretações além do que está escrito.
+- Responda SOMENTE com base no CONTEXTO fornecido.
+- Para perguntas que requerem análise, comparação ou ranking (como "os 5 maiores", "os menores", "compare", etc.), analise TODOS os dados relevantes no contexto.
+- Sempre que tiver um ranking, faça uma pós analise, exemplo: para os 5 maiores, procure o maior, depois procure o segundo maior, e assim por diante (o segundo maior é o maior excluindo o primeiro). Siga tal regra para outros rankings.
+- Se a informação não estiver no CONTEXTO, responda: "Não tenho informações necessárias para responder sua pergunta."
+- Para perguntas complexas, organize e compare as informações disponíveis no contexto.
+- Nunca invente dados ou use conhecimento externo.
 
-EXEMPLOS DE PERGUNTAS FORA DO CONTEXTO:
-Pergunta: "Qual é a capital da França?"
-Resposta: "Não tenho informações necessárias para responder sua pergunta."
+EXEMPLOS DE ANÁLISE COMPLEXA:
+Pergunta: "Quais são os 5 maiores faturamentos?"
+Resposta: Com base no contexto, os 5 maiores faturamentos são: 1) Empresa A - R$ 10 milhões, 2) Empresa B - R$ 8 milhões, 3) Empresa C - R$ 6 milhões, 4) Empresa D - R$ 4 milhões, 5) Empresa E - R$ 2 milhões.
 
-Pergunta: "Quantos clientes temos em 2024?"
-Resposta: "Não tenho informações necessárias para responder sua pergunta."
-
-Pergunta: "Você acha isso bom ou ruim?"
-Resposta: "Não tenho informações necessárias para responder sua pergunta."
+Pergunta: "Compare as empresas com maior e menor faturamento"
+Resposta: A empresa com maior faturamento é [nome] com R$ [valor], e a com menor faturamento é [nome] com R$ [valor].
 
 PERGUNTA DO USUÁRIO:
 {pergunta}
 
-RESPONDA A "PERGUNTA DO USUÁRIO"
+RESPONDA A "PERGUNTA DO USUÁRIO" analisando e organizando as informações do contexto quando necessário.
 """
 
 def get_database_connection():
@@ -52,7 +51,7 @@ def get_database_connection():
         print(f"❌ Erro ao conectar ao banco: {e}")
         return None
 
-def search_similar_documents(query, db, k=10):
+def search_similar_documents(query, db, k=20):
     try:
         print(f"🔍 Buscando documentos similares para: '{query[:50]}...'")
         
@@ -75,11 +74,12 @@ def create_context_from_documents(documents):
         
         context_parts = []
         for i, doc in enumerate(documents, 1):
-            context_parts.append(f"DOCUMENTO {i}:\n{doc.page_content}\n")
+            # Adicionar separador mais claro entre documentos
+            context_parts.append(f"=== DOCUMENTO {i} ===\n{doc.page_content}\n")
         
         context = "\n".join(context_parts)
         
-        print(f"📝 Contexto criado com {len(documents)} documentos")
+        print(f"📝 Contexto criado com {len(documents)} documentos ({len(context)} caracteres)")
         return context
         
     except Exception as e:
@@ -121,7 +121,16 @@ def search_prompt(question=None):
         if not db:
             return "Erro: Não foi possível conectar ao banco de dados."
         
-        similar_docs = search_similar_documents(question, db)
+        # Para perguntas complexas, buscar mais documentos
+        is_complex_question = any(keyword in question.lower() for keyword in [
+            'maiores', 'menores', 'top', 'ranking', 'compare', 'todos', 'listar', 
+            'quais são', 'quantos', 'múltiplos', 'vários', 'diferentes'
+        ])
+        
+        k_docs = 30 if is_complex_question else 20
+        print(f"🔍 Buscando {k_docs} documentos para pergunta {'complexa' if is_complex_question else 'simples'}")
+        
+        similar_docs = search_similar_documents(question, db, k=k_docs)
         if not similar_docs:
             return "Não tenho informações necessárias para responder sua pergunta."
         
